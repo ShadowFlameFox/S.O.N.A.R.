@@ -29,7 +29,7 @@ def update_object(obj, new_value, file):
 
 def create_database(folder_name):
     script_directory = os.path.dirname(os.path.abspath(__file__))
-    subfolder_path = os.path.join(script_directory, f"DB\\{folder_name}")
+    subfolder_path = os.path.join(script_directory, f"DB/{folder_name}")
 
     if not os.path.exists(subfolder_path):
         os.makedirs(subfolder_path)
@@ -39,14 +39,14 @@ def create_database(folder_name):
     
 def store(database, key, value):
     try: 
-        save_data(json.loads(value), f"DB\\{database}\\{key}")
+        save_data(json.loads(value), f"DB/{database}/{key}")
         return f"The value was updated successfully.", None, 200
     except FileNotFoundError:
         return f"Database '{database}' not found.", None, 404
 
 def load(database, key):
     try:
-        with open(f"DB\\{database}\\{key}.json", "r", encoding="utf-8") as f:
+        with open(f"DB/{database}/{key}.json", "r", encoding="utf-8") as f:
             data = json.load(f)
             return None, data, 200
     except FileNotFoundError:
@@ -55,7 +55,7 @@ def load(database, key):
 
 def list_subfolders():
     script_directory = os.path.dirname(os.path.abspath(__file__))
-    subfolder_path = os.path.join(script_directory, f"DB\\")
+    subfolder_path = os.path.join(script_directory, f"DB/")
     subfolders_list = []
     try:
         subfolders = [f.name for f in os.scandir(subfolder_path) if f.is_dir()]
@@ -73,7 +73,7 @@ def list_subfolders():
 def delete_key(database, key):
     try:
         script_directory = os.path.dirname(os.path.abspath(__file__))
-        os.remove(os.path.join(script_directory, f"DB\\{database}\\{key}.json"))
+        os.remove(os.path.join(script_directory, f"DB/{database}/{key}.json"))
         return f"The following key has been deleted: '{key}'", None, 200
     except FileNotFoundError:
         return f"The following key doesn't exsist: '{key}'", None, 404
@@ -81,7 +81,7 @@ def delete_key(database, key):
 def delete_database(database):
     try:
         script_directory = os.path.dirname(os.path.abspath(__file__))
-        subfolder_path = os.path.join(script_directory, f"DB\\{database}")
+        subfolder_path = os.path.join(script_directory, f"DB/{database}")
         shutil.rmtree(subfolder_path)
         return(f"Database '{database}' deleted successfully."), None, 200
     except FileNotFoundError:

@@ -23,7 +23,7 @@ def move_file_three_levels_up(file_name):
     try:
         # Move the file
         shutil.move(file_path, destination_path)
-        print(f"File '{file_name}' moved to '{destination_directory}'.")
+        print(f"{file_name} has been installed.")
     except Exception as e:
         print(colored(f"Error: Unable to move the file. {e}","red"))
 
@@ -31,3 +31,4 @@ if __name__ == "__main__":
     move_file_three_levels_up("api.py")
     move_file_three_levels_up("ui.py")
     move_file_three_levels_up("index.py")
+    move_file_three_levels_up("update.py")

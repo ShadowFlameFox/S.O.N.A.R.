@@ -1,85 +1,34 @@
 import os
-import requests
-from zipfile import ZipFile
-from io import BytesIO
-import configparser
-import subprocess
+import shutil
+from termcolor import colored
 
-def download_and_extract_zip(zip_url, extract_path):
-    response = requests.get(zip_url)
-    print("Download completed.\nExtracting files...")
-    with ZipFile(BytesIO(response.content)) as zip_file:
-        zip_file.extractall(extract_path)
-    print("All files extracted.\nRunning setup.py ...")
+def move_file_three_levels_up(file_name):
+    # Get the directory of the script
+    script_directory = os.path.dirname(os.path.abspath(__file__))
 
-def get_latest_commit_sha(username, repository, branch):
-    api_url = f'https://api.github.com/repos/{username}/{repository}/commits/{branch}'
-    response = requests.get(api_url)
-    return response.json().get('sha', '')
+    # Construct the full path of the file to move
+    file_path = os.path.join(script_directory, file_name)
 
-def update_from_github(username, repository, branch, folder, download_path, local_commit_sha):
-    global config, response
-    base_url = f'https://github.com/{username}/{repository}/archive/{branch}.zip'
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        print(colored(f"Error: File '{file_path}' not found.","red"))
+        return
 
-    latest_commit_sha = get_latest_commit_sha(username, repository, branch)
+    # Construct the destination directory (three levels above the original file)
+    destination_directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(file_path))))
 
-    # Check if the local repository is up-to-date
+    # Construct the destination path
+    destination_path = os.path.join(destination_directory, file_name)
 
-    if local_commit_sha == latest_commit_sha:
-        print("Already up to date. No update necessary.")
-        exit()
-
-    # Perform the update
-    if not os.path.exists(download_path):
-        os.makedirs(download_path)
-
-    print("Downloading new version...")
-
-    download_and_extract_zip(base_url, download_path)
-
-    subprocess.run(["python3",f"{local_download_path}/S.O.N.A.R.-main/S.O.N.A.R/setup.py"])
-    config['UPDATE']['local_commit_sha'] = get_latest_commit_sha(username,repository,branch)
-    response = "Update was installed successfully."
-
+    try:
+        # Move the file
+        shutil.move(file_path, destination_path)
+        print(f"{file_name} has been installed.")
+    except Exception as e:
+        print(colored(f"Error: Unable to move the file. {e}","red"))
 
 if __name__ == "__main__":
-    response = ""
-    print("Looking for updates...")
-
-    config = configparser.ConfigParser()
-    config.read("sonar.conf")
-    
-    try:
-        github_username = config.get('UPDATE', 'github_username')
-        github_repository = config.get('UPDATE', 'github_repository')
-        github_branch = config.get('UPDATE', 'github_branch')
-        github_folder = config.get("UPDATE", "github_folder")
-        local_download_path = config.get("UPDATE", "local_download_path")
-        auto_update = config.get("UPDATE","auto_update")
-        local_commit_sha = config.get("UPDATE","local_commit_sha")
-    except:
-        config['UPDATE']['github_username'] = "ShadowFlameFox"
-        config['UPDATE']['github_repository'] = "S.O.N.A.R."
-        config['UPDATE']['github_branch'] = "main"
-        config['UPDATE']['github_folder'] = "S.O.N.A.R"
-        config['UPDATE']['local_download_path'] = "DOWNLOAD"
-        config['UPDATE']['auto_update'] = "False"
-        config['UPDATE']['local_commit_sha'] = None
-
-    try: 
-        port = config.get("API","port")
-        host = config.get("API","host")
-    except:
-        config['API']['port'] = 5000
-        config['API']['host'] = "127.0.0.1"
-
-    update_from_github(github_username, github_repository, github_branch, github_folder, local_download_path, local_commit_sha)
-    print("Updating config...")
-    new_config = configparser.ConfigParser()
-    new_config.read("DOWNLOAD/S.O.N.A.R.-main/S.O.N.A.R/sonar.conf")
-    config['GENERAL']['version'] = new_config["GENERAL"]["version"]
-
-    with open('sonar.conf', 'w') as configfile:
-        config.write(configfile)
-
-    print(response)
+    move_file_three_levels_up("api.py")
+    move_file_three_levels_up("ui.py")
+    move_file_three_levels_up("index.py")
+    move_file_three_levels_up("update.py")
